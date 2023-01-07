@@ -1,0 +1,40 @@
+class Solution:
+    def mostProfitablePath(self, edges: List[List[int]], bob: int, amount: List[int]) -> int:
+        N = len(amount)
+        e = collections.defaultdict(list)
+        for u, v in edges:
+            e[u].append(v)
+            e[v].append(u)
+        parent =[None] * N
+        time = [None] * N
+        def dfs(node, par, t):
+            parent[node] = par
+            time[node] = t
+            for v in e[node]:
+                if v != par:
+                    dfs(v, node, t + 1)
+        dfs(0,-1,0)
+        btime =[None] * N
+        current = bob
+        t = 0
+        while current !=0:
+            btime [current] = t
+            if btime[current] < time[current]:
+                amount[current] = 0
+            elif btime[current] == time[current]:
+                amount[current] //= 2
+            current = parent[current]
+            t +=1
+        INF = 10** 20
+        best = -INF
+        def dfs2(node, par, current):
+            down =0
+            for v in e[node]:
+                if v != par:
+                    dfs2(v, node, current + amount[v])
+                    down +=1
+            if down == 0:
+                nonlocal best
+                best = max(best, current)
+        dfs2(0, -1, amount[0])
+        return best
